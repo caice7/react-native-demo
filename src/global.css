@@ -1,0 +1,8 @@
+:root {
+  /* 圆角 */
+  --radius: 12px;
+}
+
+.icon {
+  margin: 30px;
+}
