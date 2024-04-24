@@ -1,0 +1,42 @@
+.confirm {
+  height: 180px;
+  padding-top: 20px;
+  justify-content: space-between;
+}
+
+.text-view-top {
+  justify-content: center;
+  align-items: center;
+  padding: 25px 0 0 0;
+}
+
+.btn-view {
+  flex-direction: row;
+  width: 100%;
+  border-top-width: 0.5px;
+
+}
+
+.content-text {
+  font-weight: bold;
+  font-size: 18px;
+  color: #000;
+}
+
+.content-text-confirm {
+  font-weight: bold;
+  font-size: 18px;
+  color: #576B95;
+}
+
+.cancel-view {
+  border-right-width: 0.5px;
+}
+
+.cancel-view,
+.success-view {
+  align-items: center;
+  width: 50%;
+  padding-bottom: 20px;
+  padding-top: 20px;
+}

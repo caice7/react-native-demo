@@ -1,8 +1,150 @@
 :root {
+  /* 边框 */
+  --bd-c: #EAEBED;
+  --bd: 1px solid var(--bd-c);
+  /* 主题色 */
+  --color: #2775B7;
   /* 圆角 */
   --radius: 12px;
 }
 
-.icon {
-  margin: 30px;
+.bar {
+  background-color: var(--color);
+  height: 60px;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+}
+
+.bart {
+  color: #fff;
+  text-align: center;
+  font-size: 22px;
+}
+
+.barb {
+  width: 60px;
+  align-items: center;
+}
+
+.row {
+  flex-direction: row;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
+}
+
+.block {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.bg {
+  background-color: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.bd {
+  border: var(--bd);
+  color: var(--bd-c);
+}
+
+.bdt {
+  border-top-width: 0.5px;
+  border-top-color: var(--bd-c);
+}
+
+.bdb {
+  border-bottom-width: 0.5px;
+  border-bottom-color: var(--bd-c);
+}
+
+.btn {
+  background-color: var(--color);
+  width: 100px;
+  height: 35px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border-radius: 100px;
+}
+
+.btnt {
+  color: #fff;
+  text-align: center;
+}
+
+.flex1 {
+  flex: 1;
+  overflow: hidden;
+}
+
+.line {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom-width: 0.5px;
+  border-bottom-color: var(--bd-c);
+  height: 50px;
+}
+
+.linel {
+  flex: 1;
+  padding: 15px 20px;
+}
+
+.liner {
+  padding: 0 20px;
+}
+
+/* type */
+.box {
+  width: 80px;
+  height: 80px;
+  margin: 10px;
+  border: 1px solid #ccc;
+}
+
+.addView {
+  padding: 30px 20px 20px;
+  flex-direction: row;
+}
+
+.addInput {
+  padding: 0 10px;
+  width: 150px;
+  color: #333;
+}
+
+.addBtn {
+  margin-bottom: 25px;
+}
+
+/* list */
+.playing {
+  color: var(--color);
+}
+
+.bottom {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color);
+  padding: 0 10px;
+}
+
+.bottomb {
+  padding: 10px;
+}
+
+.playName {
+  color: #fff;
+  font-size: 18px;
+}
+
+.title {
+  padding: 20px;
 }

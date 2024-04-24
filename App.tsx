@@ -6,15 +6,16 @@
  */
 
 import React from 'react';
-import { SafeAreaView } from 'react-native';
-import Main from '~/main';
+import { Dimensions } from 'react-native';
+import Main from '~/Main';
 
 function App(): React.JSX.Element {
+  const window = Dimensions.get('window');
+  global.gWidth = window.width;
+  global.gHeight = window.height;
 
   return (
-    <SafeAreaView>
-      <Main />
-    </SafeAreaView>
+    <Main />
   );
 }
 

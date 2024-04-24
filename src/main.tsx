@@ -1,13 +1,12 @@
-import React from 'react';
-import { Text, View } from 'react-native';
-import styles from "~/global.css";
-import Icon from "react-native-vector-icons/AntDesign";
+import React, { useState } from 'react';
+import MType from './MType';
+import MList from './MList';
 
 export default function Main() {
+  const [page, setPage] = useState(1);
+
   return (
-    <View>
-      <Text>test</Text>
-      <Icon style={styles.icon} name="checksquare" size={16} color="#777" />
-    </View>
+    page === 1 ? <MType setPage={setPage} /> :
+      <MList setPage={setPage} />
   )
 }
