@@ -52,7 +52,7 @@ export default function MType({ setPage }: {
   const showAdd = () => {
     setAddPopup(true); setTimeout(() => {
       focus.current.focus();
-    }, 100);
+    }, 500);
   }
 
   /** 添加分类 */

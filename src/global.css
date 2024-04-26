@@ -34,6 +34,7 @@
 .center {
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .block {
@@ -129,9 +130,6 @@
 }
 
 .bottom {
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
   background-color: var(--color);
   padding: 0 10px;
 }
@@ -140,9 +138,11 @@
   padding: 10px;
 }
 
-.playName {
+.white {
   color: #fff;
-  font-size: 18px;
+  font-size: 16px;
+  margin-bottom: 5px;
+  padding-top: 5px;
 }
 
 .title {
