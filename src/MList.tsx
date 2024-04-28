@@ -9,10 +9,12 @@ import PopupCenter from './components/popup/center';
 import TrackPlayer, { useProgress } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import { hideLoading, showLoading } from "~/components/load";
+import RNFetchBlob from 'react-native-blob-util';
 
 type MODE = 'single' | 'sequence' | 'random'
 
 let playName = '';
+let timmer: NodeJS.Timeout;
 export default function MList({ setPage }: {
   setPage: React.Dispatch<React.SetStateAction<number>>
 }) {
@@ -21,6 +23,7 @@ export default function MList({ setPage }: {
   const [playing, setPlaying] = useState(false);
   const [playIndex, setPlayIndex] = useState(0);
   const [mode, setMode] = useState<MODE>('random');
+  const [showClock, setShowClock] = useState(false);
 
   /** 初始化 */
   const init = async () => {
@@ -51,18 +54,29 @@ export default function MList({ setPage }: {
   const handleAdd = async () => {
     try {
       showLoading();
-      const res: MUSIC[] = await DocumentPicker.pick({
-        type: [DocumentPicker.types.audio],
-        allowMultiSelection: true,
-        copyTo: 'cachesDirectory',
-      });
+      const res = await DocumentPicker.pickDirectory();
+      if (!res) return;
+      await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      ]);
+      console.log(res)
+      RNFetchBlob.fs.ls(res.uri)
+        .then((files: any) => {
+          // files 是一个包含文件夹中所有文件名的数组
+          console.log(files);
+        })
+        .catch((error: any) => {
+          console.error(error);
+        });
       hideLoading();
-      if (res) {
-        res.map((r, index) => r.index = index)
-        list[index].children = res;
-        save(list, setList);
-      }
-    } catch {
+      // if (res) {
+      //   res.map((r, index) => r.index = index)
+      //   list[index].children = res;
+      //   save(list, setList);
+      // }
+    } catch (e) {
+      console.log(e)
       hideLoading();
     }
   }
@@ -108,6 +122,7 @@ export default function MList({ setPage }: {
     const children = list[index].children;
     if (!children?.length) return;
     if (mode === 'random') {
+      // 随机
       let noPlay = children.filter(li => !li.played);
       if (noPlay.length === 0) {
         children.map(c => c.played = false);
@@ -117,7 +132,11 @@ export default function MList({ setPage }: {
       const r = Math.floor(Math.random() * length);
       handlePlay(noPlay[r].index || 0);
     } else if (mode === 'sequence') {
+      // 顺序
       handlePlay(playIndex + 1 >= children.length ? 0 : playIndex + 1);
+    } else {
+      // 单曲
+      TrackPlayer.seekTo(0);
     }
   }
 
@@ -126,8 +145,25 @@ export default function MList({ setPage }: {
     setMode(mode === 'random' ? 'sequence' : mode === 'sequence' ? 'single' : 'random');
   }
 
+  /** 定时暂停 */
+  const handleClock = (num: number) => {
+    setShowClock(false);
+    if (timmer) clearTimeout(timmer);
+    timmer = setTimeout(() => {
+      TrackPlayer.pause();
+      setPlaying(false);
+    }, num);
+  }
+
+  const ClockDom = ({ time }: { time: number }) => {
+    return <TouchableOpacity style={styles.clock} onPress={() => handleClock(time)}>
+      <Text style={styles.center}>{time}小时</Text>
+    </TouchableOpacity>
+  }
+
   return (
     index !== -1 ? <View style={styles.flex1}>
+      {/* 顶部 */}
       <View style={styles.bar}>
         <TouchableOpacity style={styles.barb} onPress={() => setPage(1)}>
           <Icon name="left" color="#fff" size={20} />
@@ -137,6 +173,7 @@ export default function MList({ setPage }: {
           <Icon name="plus" color="#fff" size={20} />
         </TouchableOpacity>
       </View>
+      {/* 列表 */}
       <FlatList
         data={list[index].children || []}
         renderItem={({ item: li, index }) => <View key={li.name} style={styles.line}>
@@ -149,10 +186,11 @@ export default function MList({ setPage }: {
         )}
         keyExtractor={item => item.name || ''}
       />
+      {/* 底部栏 */}
       <View style={styles.bottom}>
         <TrackProgress />
         <TrackSlider />
-        <View style={styles.row}>
+        <View style={styles.btns}>
           <TouchableOpacity onPress={handleMode}>
             <Icon style={styles.bottomb} name={mode === 'random' ? "sharealt" : mode === 'single' ? "sync" : "indent-right"} color="#fff" size={20} />
           </TouchableOpacity>
@@ -162,12 +200,21 @@ export default function MList({ setPage }: {
           <TouchableOpacity onPress={handleNext}>
             <Icon style={styles.bottomb} name="stepforward" color="#fff" size={20} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowClock(true)}>
+            <Icon style={styles.bottomb} name="clockcircleo" color="#fff" size={20} />
+          </TouchableOpacity>
         </View>
       </View>
+      <PopupCenter visible={showClock} handleClose={() => setShowClock(false)}>
+        <Text style={[styles.clock, { fontWeight: 'bold' }]}>自动暂停</Text>
+        {[0.5, 1, 1.5, 2, 3].map(l => <ClockDom key={l} time={l} />)}
+        <View style={styles.clock}></View>
+      </PopupCenter>
     </View> : <></>
   )
 }
 
+/** 标题栏 */
 const TrackProgress = function () {
   const { position, duration } = useProgress()
   const [showTitle, setShowTitle] = useState(false);
@@ -192,6 +239,7 @@ const TrackProgress = function () {
   )
 }
 
+/** 进度条 */
 const TrackSlider = function () {
   const { position, duration } = useProgress(200)
 
@@ -208,7 +256,7 @@ const TrackSlider = function () {
   return (
     <View style={[styles.row, { width: '100%' }]}>
       <TouchableOpacity onPress={handleBackward}>
-        <Icon style={styles.bottomb} name="left" color="#fff" size={20} />
+        <Icon style={styles.pd10} name="left" color="#fff" size={20} />
       </TouchableOpacity>
       <View style={[styles.flex1, { justifyContent: 'center' }]}>
         <Slider
@@ -221,7 +269,7 @@ const TrackSlider = function () {
         />
       </View>
       <TouchableOpacity onPress={handleForward}>
-        <Icon style={styles.bottomb} name="right" color="#fff" size={20} />
+        <Icon style={styles.pd10} name="right" color="#fff" size={20} />
       </TouchableOpacity>
     </View>
   )

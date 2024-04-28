@@ -125,6 +125,10 @@
 }
 
 /* list */
+.pd10 {
+  padding: 5px;
+}
+
 .playing {
   color: var(--color);
 }
@@ -135,7 +139,7 @@
 }
 
 .bottomb {
-  padding: 10px;
+  padding: 0 5px 10px;
 }
 
 .white {
@@ -147,4 +151,14 @@
 
 .title {
   padding: 20px;
+}
+
+.btns {
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.clock {
+  padding: 10px;
+  width: 200px;
 }

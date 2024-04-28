@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NativeModules, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import styles from "~/global.css";
 import Icon from "react-native-vector-icons/AntDesign";
@@ -33,7 +33,6 @@ export default function MType({ setPage }: {
   const [delPopup, setDelPopup] = useState(false);
   const [delNumber, setDelNumber] = useState(0);
   const [list, setList] = useState<LIST>([]);
-  const focus = useRef<any>();
 
   /** 初始化 */
   const init = async () => {
@@ -50,9 +49,10 @@ export default function MType({ setPage }: {
 
   /** 显示添加分类 */
   const showAdd = () => {
-    setAddPopup(true); setTimeout(() => {
-      focus.current.focus();
-    }, 500);
+    const { CalendarModule } = NativeModules;
+    console.log(CalendarModule)
+    CalendarModule.createCalendarEvent('testName', 'testLocation');
+    // setAddPopup(true);
   }
 
   /** 添加分类 */
@@ -107,7 +107,7 @@ export default function MType({ setPage }: {
           <View style={styles.center}>
             <Text>分类名称：</Text>
           </View>
-          <TextInput ref={focus} style={[styles.bd, styles.addInput]} onChangeText={text => setAddInput(text)} />
+          <TextInput style={[styles.bd, styles.addInput]} onChangeText={text => setAddInput(text)} />
         </View>
         <TouchableOpacity style={[styles.btn, styles.addBtn]} onPress={add}>
           <Text style={styles.btnt}>添加</Text>

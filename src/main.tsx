@@ -59,7 +59,7 @@ export default function Main() {
 
   useEffect(() => {
     //初始化音频播放器
-    setupPlayer()
+    setupPlayer();
   }, [])
 
   return (
