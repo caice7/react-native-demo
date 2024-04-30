@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MType from './MType';
 import MList from './MList';
 import TrackPlayer, { AppKilledPlaybackBehavior, Capability, Event } from 'react-native-track-player';
 import Loading from './components/load';
+import { StatusBar } from 'react-native';
 
 export default function Main() {
   const [page, setPage] = useState(1);
+  const didMountRef = useRef(false);
 
   const playbackService = async () => {
     TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
@@ -58,8 +60,12 @@ export default function Main() {
   }
 
   useEffect(() => {
-    //初始化音频播放器
-    setupPlayer();
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      StatusBar.setBackgroundColor(gColor);
+      //初始化音频播放器
+      setupPlayer();
+    }
   }, [])
 
   return (

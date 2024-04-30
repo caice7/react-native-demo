@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { NativeModules, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { NativeModules, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import styles from "~/global.css";
 import Icon from "react-native-vector-icons/AntDesign";
 import Confirm from './components/popup/confirm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PopupCenter from './components/popup/center';
-import { DocumentPickerResponse } from 'react-native-document-picker';
 
-export type MUSIC = DocumentPickerResponse & {
+export type MUSIC = {
+  name: string,
+  path: string,
+  uri: string,
   play?: boolean,
   played?: boolean,
   index?: number,
@@ -43,16 +45,12 @@ export default function MType({ setPage }: {
   }
 
   useEffect(() => {
-    StatusBar.setBackgroundColor(styles.bar.backgroundColor);
     init();
   }, []);
 
   /** 显示添加分类 */
   const showAdd = () => {
-    const { CalendarModule } = NativeModules;
-    console.log(CalendarModule)
-    CalendarModule.createCalendarEvent('testName', 'testLocation');
-    // setAddPopup(true);
+    setAddPopup(true);
   }
 
   /** 添加分类 */

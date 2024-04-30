@@ -8,11 +8,13 @@
 import React from 'react';
 import { Dimensions } from 'react-native';
 import Main from '~/Main';
+import styles from "~/global.css";
 
 function App(): React.JSX.Element {
   const window = Dimensions.get('window');
   global.gWidth = window.width;
   global.gHeight = window.height;
+  global.gColor = styles.bar.backgroundColor;
 
   return (
     <Main />

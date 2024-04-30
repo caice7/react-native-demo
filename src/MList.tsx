@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, PermissionsAndroid, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, PermissionsAndroid, Text, TouchableOpacity, View, NativeModules } from 'react-native';
 import styles from "~/global.css";
 import Icon from "react-native-vector-icons/AntDesign";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,8 +9,8 @@ import PopupCenter from './components/popup/center';
 import TrackPlayer, { useProgress } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import { hideLoading, showLoading } from "~/components/load";
-import RNFetchBlob from 'react-native-blob-util';
 
+const { MusicModule } = NativeModules;
 type MODE = 'single' | 'sequence' | 'random'
 
 let playName = '';
@@ -54,29 +54,21 @@ export default function MList({ setPage }: {
   const handleAdd = async () => {
     try {
       showLoading();
-      const res = await DocumentPicker.pickDirectory();
-      if (!res) return;
       await PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       ]);
-      console.log(res)
-      RNFetchBlob.fs.ls(res.uri)
-        .then((files: any) => {
-          // files 是一个包含文件夹中所有文件名的数组
-          console.log(files);
-        })
-        .catch((error: any) => {
-          console.error(error);
-        });
+      const r = await DocumentPicker.pickDirectory();
+      const res: MUSIC[] = await MusicModule.readFolder(r?.uri);
       hideLoading();
-      // if (res) {
-      //   res.map((r, index) => r.index = index)
-      //   list[index].children = res;
-      //   save(list, setList);
-      // }
+      const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
+      sortedData.map((li, index) => {
+        li.index = index;
+        // li.path = `${r?.uri}%2F${encodeURIComponent(li.name)}`;
+      })
+      list[index].children = sortedData;
+      save(list, setList);
     } catch (e) {
-      console.log(e)
       hideLoading();
     }
   }
@@ -94,9 +86,10 @@ export default function MList({ setPage }: {
       await TrackPlayer.remove(0);
     } catch {
     } finally {
+      console.log(c.uri)
       await TrackPlayer.add([{
         id: c.name,
-        url: c.fileCopyUri || '',
+        url: c.uri,
         title: c.name || '',
         artist: 'artist',
       }]);

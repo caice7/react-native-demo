@@ -9,8 +9,9 @@
 }
 
 .bar {
+  padding-top: 40px;
   background-color: var(--color);
-  height: 60px;
+  height: 80px;
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
@@ -135,7 +136,7 @@
 
 .bottom {
   background-color: var(--color);
-  padding: 0 10px;
+  padding: 0 10px 10px;
 }
 
 .bottomb {
