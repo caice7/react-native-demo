@@ -1,8 +1,7 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+ * @Description 音乐播放器
+ * @Author Caice
+ * @Date 2024/05/06
  */
 
 import React from 'react';
