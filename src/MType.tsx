@@ -9,7 +9,6 @@ import PopupCenter from './components/popup/center';
 export type MUSIC = {
   name: string,
   path: string,
-  uri: string,
   play?: boolean,
   played?: boolean,
   index?: number,

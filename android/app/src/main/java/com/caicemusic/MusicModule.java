@@ -44,7 +44,6 @@ public class MusicModule extends ReactContextBaseJavaModule {
           for (DocumentFile file : documentFile.listFiles()) {
             WritableMap fileMap = Arguments.createMap();
             fileMap.putString("name", file.getName());
-            fileMap.putString("uri", file.getUri().toString()); // Add this line
             // 添加更多文件信息到fileMap
             fileArray.pushMap(fileMap);
           }
@@ -56,30 +55,4 @@ public class MusicModule extends ReactContextBaseJavaModule {
       }
     }
     
-    @ReactMethod
-    public void convertUri(String contentUri, Promise promise) {
-      try {
-        Context context = getReactApplicationContext();
-        Uri uri = Uri.parse(contentUri);
-        InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        // promise.resolve("1");
-
-        File outputDir = context.getCacheDir();
-        File outputFile = File.createTempFile("prefix", "extension", outputDir);
-        OutputStream outputStream = new FileOutputStream(outputFile);
-
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bytesRead);
-        }
-
-        inputStream.close();
-        outputStream.close();
-
-        promise.resolve("file://" + outputFile.getAbsolutePath());
-      } catch (Exception e) {
-          promise.reject(e);
-      }
-    }
 }

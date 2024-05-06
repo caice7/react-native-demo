@@ -6,14 +6,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LIST, MUSIC, save } from './MType';
 import DocumentPicker from 'react-native-document-picker';
 import PopupCenter from './components/popup/center';
-import TrackPlayer, { useProgress } from 'react-native-track-player';
+import TrackPlayer, { useProgress, Event } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
 import { hideLoading, showLoading } from "~/components/load";
+import RNFetchBlob from 'rn-fetch-blob';
 
 const { MusicModule } = NativeModules;
 type MODE = 'single' | 'sequence' | 'random'
 
-let playName = '';
 let timmer: NodeJS.Timeout;
 export default function MList({ setPage }: {
   setPage: React.Dispatch<React.SetStateAction<number>>
@@ -24,6 +24,7 @@ export default function MList({ setPage }: {
   const [playIndex, setPlayIndex] = useState(0);
   const [mode, setMode] = useState<MODE>('random');
   const [showClock, setShowClock] = useState(false);
+  const [isFirst, setIsFirst] = useState(true);
 
   /** 初始化 */
   const init = async () => {
@@ -54,20 +55,26 @@ export default function MList({ setPage }: {
   const handleAdd = async () => {
     try {
       showLoading();
-      await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      ]);
-      const r = await DocumentPicker.pickDirectory();
-      const res: MUSIC[] = await MusicModule.readFolder(r?.uri);
+      let isMusicFilesReadPermissions = false;
+      isMusicFilesReadPermissions = await PermissionsAndroid.check("android.permission.READ_MEDIA_AUDIO");
+      if (isMusicFilesReadPermissions === false) {
+        const result = await PermissionsAndroid.request("android.permission.READ_MEDIA_AUDIO");
+        isMusicFilesReadPermissions = result === PermissionsAndroid.RESULTS.GRANTED;
+      }
+      if (isMusicFilesReadPermissions) {
+        const r = await DocumentPicker.pickDirectory();
+        const res: MUSIC[] = await MusicModule.readFolder(r?.uri);
+        const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
+        sortedData.map((li: any, index: number) => {
+          li.index = index;
+          li.path = `${r?.uri}%2F${encodeURIComponent(li.name)}`;
+        })
+        list[index].children = sortedData;
+        save(list, setList);
+      } else {
+        console.log(isMusicFilesReadPermissions)
+      }
       hideLoading();
-      const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
-      sortedData.map((li, index) => {
-        li.index = index;
-        // li.path = `${r?.uri}%2F${encodeURIComponent(li.name)}`;
-      })
-      list[index].children = sortedData;
-      save(list, setList);
     } catch (e) {
       hideLoading();
     }
@@ -83,13 +90,13 @@ export default function MList({ setPage }: {
     c.played = true;
     playName = c.name || '';
     try {
-      await TrackPlayer.remove(0);
+      await TrackPlayer.reset();
     } catch {
     } finally {
-      console.log(c.uri)
+      const newFile = await RNFetchBlob.fs.stat(c.path.replace('/tree/', '/document/'));
       await TrackPlayer.add([{
         id: c.name,
-        url: c.uri,
+        url: newFile.path,
         title: c.name || '',
         artist: 'artist',
       }]);
@@ -97,6 +104,14 @@ export default function MList({ setPage }: {
       setPlaying(true);
       save(list, setList);
       setPlayIndex(i);
+      if (isFirst) {
+        console.log(c.name)
+        if (listener) {
+          listener.remove();
+        }
+        listener = TrackPlayer.addEventListener(Event.PlaybackQueueEnded, () => handleNext());
+        setIsFirst(false);
+      }
     }
   }
 
@@ -106,7 +121,21 @@ export default function MList({ setPage }: {
     if (playing) {
       TrackPlayer.pause();
     } else {
-      TrackPlayer.play();
+      if (isFirst) {
+        // 播放上次未播完的歌曲
+        const children = list[index].children;
+        if (!children?.length) return;
+        let num = 0;
+        for (let i = 0; i < children.length; i++) {
+          if (children[i].play) {
+            num = i;
+            break;
+          }
+        }
+        handlePlay(num);
+      } else {
+        TrackPlayer.play();
+      }
     }
   }
 
@@ -154,11 +183,19 @@ export default function MList({ setPage }: {
     </TouchableOpacity>
   }
 
+  /** 返回 */
+  const back = () => {
+    setPage(1);
+    if (playing) {
+      handleStop();
+    }
+  }
+
   return (
     index !== -1 ? <View style={styles.flex1}>
       {/* 顶部 */}
       <View style={styles.bar}>
-        <TouchableOpacity style={styles.barb} onPress={() => setPage(1)}>
+        <TouchableOpacity style={styles.barb} onPress={back}>
           <Icon name="left" color="#fff" size={20} />
         </TouchableOpacity>
         <Text style={styles.bart}>{list[index].name}</Text>
@@ -209,7 +246,7 @@ export default function MList({ setPage }: {
 
 /** 标题栏 */
 const TrackProgress = function () {
-  const { position, duration } = useProgress()
+  const { position, duration } = useProgress(200)
   const [showTitle, setShowTitle] = useState(false);
 
   function format(seconds: any) {
@@ -219,22 +256,24 @@ const TrackProgress = function () {
   }
 
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+    <>
+      <View style={styles.titleBar}>
+        <Text style={[styles.white, styles.w60]}>{format(position)}</Text>
+        <TouchableOpacity style={styles.flex1} onPress={() => setShowTitle(true)}>
+          <Text style={[styles.white, styles.center]} numberOfLines={1}>{playName}</Text>
+        </TouchableOpacity>
+        <Text style={[styles.white, styles.w60]}>{format(duration)}</Text>
+      </View>
       <PopupCenter visible={showTitle} handleClose={() => setShowTitle(false)}>
         <Text style={styles.title}>{playName}</Text>
       </PopupCenter>
-      <Text style={styles.white}>{format(position)}</Text>
-      <TouchableOpacity style={styles.flex1} onPress={() => setShowTitle(true)}>
-        <Text style={[styles.white, styles.center]} numberOfLines={1}>{playName}</Text>
-      </TouchableOpacity>
-      <Text style={styles.white}>{format(duration)}</Text>
-    </View>
+    </>
   )
 }
 
 /** 进度条 */
 const TrackSlider = function () {
-  const { position, duration } = useProgress(200)
+  const { position, duration } = useProgress()
 
   async function handleForward() {
     let new_position = position + 5

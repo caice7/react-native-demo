@@ -5,7 +5,7 @@ import TrackPlayer, { AppKilledPlaybackBehavior, Capability, Event } from 'react
 import Loading from './components/load';
 import { StatusBar } from 'react-native';
 
-export default function Main() {
+export default function Enter() {
   const [page, setPage] = useState(1);
   const didMountRef = useRef(false);
 

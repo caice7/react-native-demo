@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Dimensions } from 'react-native';
-import Main from '~/Main';
+import Enter from '~/Enter';
 import styles from "~/global.css";
 
 function App(): React.JSX.Element {
@@ -15,9 +15,11 @@ function App(): React.JSX.Element {
   global.gWidth = window.width;
   global.gHeight = window.height;
   global.gColor = styles.bar.backgroundColor;
+  global.playName = '';
+  global.listener = undefined;
 
   return (
-    <Main />
+    <Enter />
   );
 }
 

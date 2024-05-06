@@ -136,11 +136,16 @@
 
 .bottom {
   background-color: var(--color);
-  padding: 0 10px 10px;
+  padding: 0 10px 40px;
 }
 
 .bottomb {
   padding: 0 5px 10px;
+}
+
+.titleBar {
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .white {
@@ -148,6 +153,11 @@
   font-size: 16px;
   margin-bottom: 5px;
   padding-top: 5px;
+  text-align: center;
+}
+
+.w60 {
+  width: 60px;
 }
 
 .title {
