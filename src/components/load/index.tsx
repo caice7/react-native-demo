@@ -12,12 +12,12 @@ export const showLoading = (duration?: number) => {
   timer = setTimeout(() => {
     load.setLoading(false);
   }, duration || 30000);
-}
+};
 
 export const hideLoading = () => {
   if (!load.setLoading) return;
   load.setLoading(false);
-}
+};
 
 export default function Loading() {
   const [loading, setLoading] = useState(false);
@@ -32,5 +32,5 @@ export default function Loading() {
         <Text style={styles.text}>加载中</Text>
       </View>
     </View> : <></>
-  )
+  );
 }

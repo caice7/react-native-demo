@@ -14,8 +14,8 @@ const config = {
     babelTransformerPath: require.resolve('./transformer.js'),
   },
   resolver: {
-    assetExts: assetExts.filter(ext => ext !== "svg"),
-    sourceExts: [...sourceExts, 'scss', 'css', "svg"],
+    assetExts: assetExts.filter(ext => ext !== 'svg'),
+    sourceExts: [...sourceExts, 'scss', 'css', 'svg'],
   },
 };
 

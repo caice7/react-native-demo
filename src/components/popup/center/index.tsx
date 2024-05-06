@@ -1,13 +1,13 @@
 import React from 'react';
 import { Modal, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import styles from "~/global.css";
+import styles from '~/global.css';
 
 export default function PopupCenter({ visible, handleClose, width, isRule, children }: {
-  visible: boolean,
-  handleClose?: () => void,
-  children: any,
-  width?: number,
-  isRule?: boolean,
+  visible: boolean;
+  handleClose?: () => void;
+  children: any;
+  width?: number;
+  isRule?: boolean;
 }) {
   return (
     <Modal
@@ -28,5 +28,5 @@ export default function PopupCenter({ visible, handleClose, width, isRule, child
         </TouchableWithoutFeedback>
       </TouchableOpacity>}
     </Modal>
-  )
+  );
 }

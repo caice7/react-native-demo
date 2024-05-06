@@ -1,13 +1,15 @@
+
+import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import istyles from "./index.css";
-import gstyles from "~/global.css";
+import istyles from './index.css';
+import gstyles from '~/global.css';
 import PopupCenter from '../center';
 
 export default function Confirm({ content, callback, visible, setVisible }: {
-  content: string,
-  callback: any,
-  visible: boolean,
-  setVisible: React.Dispatch<React.SetStateAction<boolean>>,
+  content: string;
+  callback: any;
+  visible: boolean;
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const styles = { ...gstyles, ...istyles };
 
@@ -15,8 +17,8 @@ export default function Confirm({ content, callback, visible, setVisible }: {
     if (show) {
       callback();
     }
-    setVisible(false)
-  }
+    setVisible(false);
+  };
   return (
     <PopupCenter visible={visible} width={0.8} handleClose={() => setVisible(false)} >
       <View style={styles.confirm}>
@@ -35,4 +37,3 @@ export default function Confirm({ content, callback, visible, setVisible }: {
     </PopupCenter>
   );
 }
-

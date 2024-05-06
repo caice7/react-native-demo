@@ -7,7 +7,7 @@
 import React from 'react';
 import { Dimensions } from 'react-native';
 import Enter from '~/Enter';
-import styles from "~/global.css";
+import styles from '~/global.css';
 
 function App(): React.JSX.Element {
   const window = Dimensions.get('window');
@@ -17,9 +17,7 @@ function App(): React.JSX.Element {
   global.playName = '';
   global.listener = undefined;
 
-  return (
-    <Enter />
-  );
+  return <Enter />;
 }
 
 export default App;

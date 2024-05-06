@@ -10,37 +10,42 @@ export default function Enter() {
   const didMountRef = useRef(false);
 
   const playbackService = async () => {
-    TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
-    TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause())
+    TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
+    TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
     TrackPlayer.addEventListener(Event.RemoteNext, async () => {
-      const track = await TrackPlayer.getActiveTrackIndex()
-      if (track == 0) {
-        TrackPlayer.skipToNext()
+      const track = await TrackPlayer.getActiveTrackIndex();
+      if (track === 0) {
+        TrackPlayer.skipToNext();
       }
-    })
+    });
     TrackPlayer.addEventListener(Event.RemotePrevious, async () => {
-      const track = await TrackPlayer.getActiveTrackIndex()
-      if (track == 1) {
-        TrackPlayer.skipToPrevious()
+      const track = await TrackPlayer.getActiveTrackIndex();
+      if (track === 1) {
+        TrackPlayer.skipToPrevious();
       }
-    })
-    TrackPlayer.addEventListener(Event.RemoteJumpForward, async ({ interval }) => {
-      const position = (await TrackPlayer.getProgress()).position
-      await TrackPlayer.seekTo(position + interval)
-    })
-    TrackPlayer.addEventListener(Event.RemoteJumpBackward, async ({ interval }) => {
-      const position = (await TrackPlayer.getProgress()).position
-      await TrackPlayer.seekTo(position - interval)
-    })
-
-  }
+    });
+    TrackPlayer.addEventListener(
+      Event.RemoteJumpForward,
+      async ({ interval }) => {
+        const position = (await TrackPlayer.getProgress()).position;
+        await TrackPlayer.seekTo(position + interval);
+      },
+    );
+    TrackPlayer.addEventListener(
+      Event.RemoteJumpBackward,
+      async ({ interval }) => {
+        const position = (await TrackPlayer.getProgress()).position;
+        await TrackPlayer.seekTo(position - interval);
+      },
+    );
+  };
 
   const setupPlayer = async () => {
-    TrackPlayer.registerPlaybackService(() => playbackService)
-    await TrackPlayer.setupPlayer()
+    TrackPlayer.registerPlaybackService(() => playbackService);
+    await TrackPlayer.setupPlayer();
     await TrackPlayer.updateOptions({
       android: {
-        appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback
+        appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback,
       },
       capabilities: [
         Capability.Play,
@@ -56,8 +61,8 @@ export default function Enter() {
         Capability.SkipToPrevious,
         Capability.SkipToNext,
       ],
-    })
-  }
+    });
+  };
 
   useEffect(() => {
     if (!didMountRef.current) {
@@ -66,13 +71,12 @@ export default function Enter() {
       //初始化音频播放器
       setupPlayer();
     }
-  }, [])
+  }, []);
 
   return (
     <>
-      {page === 1 ? <MType setPage={setPage} /> :
-        <MList setPage={setPage} />}
+      {page === 1 ? <MType setPage={setPage} /> : <MList setPage={setPage} />}
       <Loading />
     </>
-  )
+  );
 }
