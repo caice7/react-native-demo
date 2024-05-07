@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, PermissionsAndroid, Text, TouchableOpacity, View, NativeModules } from 'react-native';
-import styles from "~/global.css";
-import Icon from "react-native-vector-icons/AntDesign";
+import styles from '~/global.css';
+import Icon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LIST, MUSIC, save } from './MType';
 import DocumentPicker from 'react-native-document-picker';
 import PopupCenter from './components/popup/center';
 import TrackPlayer, { useProgress, Event } from 'react-native-track-player';
 import Slider from '@react-native-community/slider';
-import { hideLoading, showLoading } from "~/components/load";
+import { hideLoading, showLoading } from '~/components/load';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const { MusicModule } = NativeModules;
@@ -19,9 +19,9 @@ export default function MList({ setPage }: {
   setPage: React.Dispatch<React.SetStateAction<number>>
 }) {
   const [list, setList] = useState<LIST>([]);
-  const [index, setIndex] = useState(-1);
+  const [listI, setListI] = useState(-1);
   const [playing, setPlaying] = useState(false);
-  const [playIndex, setPlayIndex] = useState(0);
+  const [playI, setPlayI] = useState(0);
   const [mode, setMode] = useState<MODE>('random');
   const [showClock, setShowClock] = useState(false);
   const [isFirst, setIsFirst] = useState(true);
@@ -34,16 +34,16 @@ export default function MList({ setPage }: {
     if (m) setMode(m as MODE);
     if (sto && i) {
       const json: LIST = JSON.parse(sto);
-      const int = parseInt(i);
+      const int = parseInt(i, 10);
       const li = json[int].children || [];
       for (let j = 0; j < li.length; j++) {
         if (li[j]?.play) {
           playName = li[j].name || '';
-          setPlayIndex(j);
+          setPlayI(j);
         }
       }
       setList(json);
-      setIndex(int);
+      setListI(int);
     }
   }
 
@@ -56,9 +56,9 @@ export default function MList({ setPage }: {
     try {
       showLoading();
       let isMusicFilesReadPermissions = false;
-      isMusicFilesReadPermissions = await PermissionsAndroid.check("android.permission.READ_MEDIA_AUDIO");
+      isMusicFilesReadPermissions = await PermissionsAndroid.check('android.permission.READ_MEDIA_AUDIO');
       if (isMusicFilesReadPermissions === false) {
-        const result = await PermissionsAndroid.request("android.permission.READ_MEDIA_AUDIO");
+        const result = await PermissionsAndroid.request('android.permission.READ_MEDIA_AUDIO');
         isMusicFilesReadPermissions = result === PermissionsAndroid.RESULTS.GRANTED;
       }
       if (isMusicFilesReadPermissions) {
@@ -69,7 +69,7 @@ export default function MList({ setPage }: {
           li.index = index;
           li.path = `${r?.uri}%2F${encodeURIComponent(li.name)}`;
         })
-        list[index].children = sortedData;
+        list[listI].children = sortedData;
         save(list, setList);
       } else {
         console.log(isMusicFilesReadPermissions)
@@ -82,9 +82,9 @@ export default function MList({ setPage }: {
 
   /** 播放音乐 */
   const handlePlay = async (i: number) => {
-    const children = list[index].children;
+    const children = list[listI].children;
     if (!children?.length) return;
-    children.map(c => c.play = false);
+    children.map(c => { c.play = false });
     const c = children[i];
     c.play = true;
     c.played = true;
@@ -103,7 +103,7 @@ export default function MList({ setPage }: {
       await TrackPlayer.play();
       setPlaying(true);
       save(list, setList);
-      setPlayIndex(i);
+      setPlayI(i);
       if (isFirst) {
         console.log(c.name)
         if (listener) {
@@ -123,7 +123,7 @@ export default function MList({ setPage }: {
     } else {
       if (isFirst) {
         // 播放上次未播完的歌曲
-        const children = list[index].children;
+        const children = list[listI].children;
         if (!children?.length) return;
         let num = 0;
         for (let i = 0; i < children.length; i++) {
@@ -141,13 +141,13 @@ export default function MList({ setPage }: {
 
   /** 下一首 */
   const handleNext = () => {
-    const children = list[index].children;
+    const children = list[listI].children;
     if (!children?.length) return;
     if (mode === 'random') {
       // 随机
       let noPlay = children.filter(li => !li.played);
       if (noPlay.length === 0) {
-        children.map(c => c.played = false);
+        children.map(c => { c.played = false });
         noPlay = children;
       }
       const length = noPlay.length;
@@ -155,7 +155,7 @@ export default function MList({ setPage }: {
       handlePlay(noPlay[r].index || 0);
     } else if (mode === 'sequence') {
       // 顺序
-      handlePlay(playIndex + 1 >= children.length ? 0 : playIndex + 1);
+      handlePlay(playI + 1 >= children.length ? 0 : playI + 1);
     } else {
       // 单曲
       TrackPlayer.seekTo(0);
@@ -167,22 +167,6 @@ export default function MList({ setPage }: {
     setMode(mode === 'random' ? 'sequence' : mode === 'sequence' ? 'single' : 'random');
   }
 
-  /** 定时暂停 */
-  const handleClock = (num: number) => {
-    setShowClock(false);
-    if (timmer) clearTimeout(timmer);
-    timmer = setTimeout(() => {
-      TrackPlayer.pause();
-      setPlaying(false);
-    }, num);
-  }
-
-  const ClockDom = ({ time }: { time: number }) => {
-    return <TouchableOpacity style={styles.clock} onPress={() => handleClock(time)}>
-      <Text style={styles.center}>{time}小时</Text>
-    </TouchableOpacity>
-  }
-
   /** 返回 */
   const back = () => {
     setPage(1);
@@ -192,20 +176,20 @@ export default function MList({ setPage }: {
   }
 
   return (
-    index !== -1 ? <View style={styles.flex1}>
+    listI !== -1 ? <View style={styles.flex1}>
       {/* 顶部 */}
       <View style={styles.bar}>
         <TouchableOpacity style={styles.barb} onPress={back}>
           <Icon name="left" color="#fff" size={20} />
         </TouchableOpacity>
-        <Text style={styles.bart}>{list[index].name}</Text>
+        <Text style={styles.bart}>{list[listI].name}</Text>
         <TouchableOpacity style={styles.barb} onPress={handleAdd}>
           <Icon name="plus" color="#fff" size={20} />
         </TouchableOpacity>
       </View>
       {/* 列表 */}
       <FlatList
-        data={list[index].children || []}
+        data={list[listI].children || []}
         renderItem={({ item: li, index }) => <View key={li.name} style={styles.line}>
           <TouchableOpacity style={styles.linel} onPress={() => handlePlay(index)}>
             <Text style={li.play ? styles.playing : null} numberOfLines={1}>{li.name}</Text>
@@ -222,10 +206,10 @@ export default function MList({ setPage }: {
         <TrackSlider />
         <View style={styles.btns}>
           <TouchableOpacity onPress={handleMode}>
-            <Icon style={styles.bottomb} name={mode === 'random' ? "sharealt" : mode === 'single' ? "sync" : "indent-right"} color="#fff" size={20} />
+            <Icon style={styles.bottomb} name={mode === 'random' ? 'sharealt' : mode === 'single' ? 'sync' : 'indent-right'} color="#fff" size={20} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleStop}>
-            <Icon style={styles.bottomb} name={playing ? "pausecircleo" : "playcircleo"} color="#fff" size={20} />
+            <Icon style={styles.bottomb} name={playing ? 'pausecircleo' : 'playcircleo'} color="#fff" size={20} />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleNext}>
             <Icon style={styles.bottomb} name="stepforward" color="#fff" size={20} />
@@ -237,11 +221,27 @@ export default function MList({ setPage }: {
       </View>
       <PopupCenter visible={showClock} handleClose={() => setShowClock(false)}>
         <Text style={[styles.clock, { fontWeight: 'bold' }]}>自动暂停</Text>
-        {[0.5, 1, 1.5, 2, 3].map(l => <ClockDom key={l} time={l} />)}
-        <View style={styles.clock}></View>
+        {[0.5, 1, 1.5, 2, 3].map(l => <ClockDom key={l} time={l} setShowClock={setShowClock} setPlaying={setPlaying} />)}
+        <View style={styles.clock} />
       </PopupCenter>
     </View> : <></>
   )
+}
+
+const ClockDom = ({ time, setShowClock, setPlaying }: any) => {
+  /** 定时暂停 */
+  const handleClock = (num: number) => {
+    setShowClock(false);
+    if (timmer) clearTimeout(timmer);
+    timmer = setTimeout(() => {
+      TrackPlayer.pause();
+      setPlaying(false);
+    }, num);
+  }
+
+  return <TouchableOpacity style={styles.clock} onPress={() => handleClock(time)}>
+    <Text style={styles.center}>{time}小时</Text>
+  </TouchableOpacity>
 }
 
 /** 标题栏 */

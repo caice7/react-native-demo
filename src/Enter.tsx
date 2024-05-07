@@ -40,7 +40,7 @@ export default function Enter() {
     );
   };
 
-  const setupPlayer = async () => {
+  const init = async () => {
     TrackPlayer.registerPlaybackService(() => playbackService);
     await TrackPlayer.setupPlayer();
     await TrackPlayer.updateOptions({
@@ -69,7 +69,7 @@ export default function Enter() {
       didMountRef.current = true;
       StatusBar.setBackgroundColor(gColor);
       //初始化音频播放器
-      setupPlayer();
+      init();
     }
   }, []);
 

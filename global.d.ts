@@ -5,4 +5,4 @@ declare global {
   var playName: string; // 当前歌曲名
   var listener: any; // 监听
 }
-export { }; 
+export { };
