@@ -21,17 +21,12 @@ export type LIST = {
 }[];
 
 /** 保存本地  */
-export const save = (
-  li: LIST,
-  setList: React.Dispatch<React.SetStateAction<LIST>>,
-) => {
+export const save = (li: LIST, setList: React.Dispatch<React.SetStateAction<LIST>>) => {
   AsyncStorage.setItem('list', JSON.stringify(li));
   setList([...li]);
 };
 
-export default function MType({ setPage }: {
-  setPage: React.Dispatch<React.SetStateAction<number>>;
-}) {
+export default function MType({ setPage }: { setPage: React.Dispatch<React.SetStateAction<number>> }) {
   const [addPopup, setAddPopup] = useState(false);
   const [addInput, setAddInput] = useState('');
   const [delPopup, setDelPopup] = useState(false);

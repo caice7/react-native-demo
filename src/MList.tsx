@@ -12,12 +12,10 @@ import { hideLoading, showLoading } from '~/components/load';
 import RNFetchBlob from 'rn-fetch-blob';
 
 const { MusicModule } = NativeModules;
-type MODE = 'single' | 'sequence' | 'random'
+type MODE = 'single' | 'sequence' | 'random';
 
 let timmer: NodeJS.Timeout;
-export default function MList({ setPage }: {
-  setPage: React.Dispatch<React.SetStateAction<number>>
-}) {
+export default function MList({ setPage }: { setPage: React.Dispatch<React.SetStateAction<number>> }) {
   const [list, setList] = useState<LIST>([]);
   const [listI, setListI] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -45,7 +43,7 @@ export default function MList({ setPage }: {
       setList(json);
       setListI(int);
     }
-  }
+  };
 
   useEffect(() => {
     init();
@@ -68,17 +66,17 @@ export default function MList({ setPage }: {
         sortedData.map((li: any, index: number) => {
           li.index = index;
           li.path = `${r?.uri}%2F${encodeURIComponent(li.name)}`;
-        })
+        });
         list[listI].children = sortedData;
         save(list, setList);
       } else {
-        console.log(isMusicFilesReadPermissions)
+        console.log(isMusicFilesReadPermissions);
       }
       hideLoading();
     } catch (e) {
       hideLoading();
     }
-  }
+  };
 
   /** 播放音乐 */
   const handlePlay = async (i: number) => {
@@ -105,7 +103,6 @@ export default function MList({ setPage }: {
       save(list, setList);
       setPlayI(i);
       if (isFirst) {
-        console.log(c.name)
         if (listener) {
           listener.remove();
         }
@@ -113,7 +110,7 @@ export default function MList({ setPage }: {
         setIsFirst(false);
       }
     }
-  }
+  };
 
   /** 播放暂停 */
   const handleStop = () => {
@@ -137,7 +134,7 @@ export default function MList({ setPage }: {
         TrackPlayer.play();
       }
     }
-  }
+  };
 
   /** 下一首 */
   const handleNext = () => {
@@ -160,12 +157,12 @@ export default function MList({ setPage }: {
       // 单曲
       TrackPlayer.seekTo(0);
     }
-  }
+  };
 
   /** 改变模式 */
   const handleMode = () => {
     setMode(mode === 'random' ? 'sequence' : mode === 'sequence' ? 'single' : 'random');
-  }
+  };
 
   /** 返回 */
   const back = () => {
@@ -173,7 +170,7 @@ export default function MList({ setPage }: {
     if (playing) {
       handleStop();
     }
-  }
+  };
 
   return (
     listI !== -1 ? <View style={styles.flex1}>
@@ -225,7 +222,7 @@ export default function MList({ setPage }: {
         <View style={styles.clock} />
       </PopupCenter>
     </View> : <></>
-  )
+  );
 }
 
 const ClockDom = ({ time, setShowClock, setPlaying }: any) => {
@@ -237,22 +234,22 @@ const ClockDom = ({ time, setShowClock, setPlaying }: any) => {
       TrackPlayer.pause();
       setPlaying(false);
     }, num);
-  }
+  };
 
   return <TouchableOpacity style={styles.clock} onPress={() => handleClock(time)}>
     <Text style={styles.center}>{time}小时</Text>
   </TouchableOpacity>
-}
+};
 
 /** 标题栏 */
 const TrackProgress = function () {
-  const { position, duration } = useProgress(200)
+  const { position, duration } = useProgress(200);
   const [showTitle, setShowTitle] = useState(false);
 
   function format(seconds: any) {
-    let mins = (Math.trunc(seconds / 60)).toString().padStart(2, '0')
-    let secs = (Math.trunc(seconds % 60)).toString().padStart(2, '0')
-    return `${mins}:${secs}`
+    let mins = (Math.trunc(seconds / 60)).toString().padStart(2, '0');
+    let secs = (Math.trunc(seconds % 60)).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
   }
 
   return (
@@ -260,7 +257,9 @@ const TrackProgress = function () {
       <View style={styles.titleBar}>
         <Text style={[styles.white, styles.w60]}>{format(position)}</Text>
         <TouchableOpacity style={styles.flex1} onPress={() => setShowTitle(true)}>
-          <Text style={[styles.white, styles.center]} numberOfLines={1}>{playName}</Text>
+          <Text style={[styles.white, styles.center]} numberOfLines={1}>
+            {playName}
+          </Text>
         </TouchableOpacity>
         <Text style={[styles.white, styles.w60]}>{format(duration)}</Text>
       </View>
@@ -268,21 +267,21 @@ const TrackProgress = function () {
         <Text style={styles.title}>{playName}</Text>
       </PopupCenter>
     </>
-  )
-}
+  );
+};
 
 /** 进度条 */
 const TrackSlider = function () {
-  const { position, duration } = useProgress()
+  const { position, duration } = useProgress();
 
   async function handleForward() {
-    let new_position = position + 5
-    await TrackPlayer.seekTo(new_position)
+    let new_position = position + 5;
+    await TrackPlayer.seekTo(new_position);
   }
 
   async function handleBackward() {
-    let new_position = position - 5
-    await TrackPlayer.seekTo(new_position)
+    let new_position = position - 5;
+    await TrackPlayer.seekTo(new_position);
   }
 
   return (
@@ -304,5 +303,5 @@ const TrackSlider = function () {
         <Icon style={styles.pd10} name="right" color="#fff" size={20} />
       </TouchableOpacity>
     </View>
-  )
-}
+  );
+};

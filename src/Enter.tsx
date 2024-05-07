@@ -24,20 +24,14 @@ export default function Enter() {
         TrackPlayer.skipToPrevious();
       }
     });
-    TrackPlayer.addEventListener(
-      Event.RemoteJumpForward,
-      async ({ interval }) => {
-        const position = (await TrackPlayer.getProgress()).position;
-        await TrackPlayer.seekTo(position + interval);
-      },
-    );
-    TrackPlayer.addEventListener(
-      Event.RemoteJumpBackward,
-      async ({ interval }) => {
-        const position = (await TrackPlayer.getProgress()).position;
-        await TrackPlayer.seekTo(position - interval);
-      },
-    );
+    TrackPlayer.addEventListener(Event.RemoteJumpForward, async ({ interval }) => {
+      const position = (await TrackPlayer.getProgress()).position;
+      await TrackPlayer.seekTo(position + interval);
+    });
+    TrackPlayer.addEventListener(Event.RemoteJumpBackward, async ({ interval }) => {
+      const position = (await TrackPlayer.getProgress()).position;
+      await TrackPlayer.seekTo(position - interval);
+    });
   };
 
   const init = async () => {
