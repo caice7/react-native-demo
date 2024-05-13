@@ -25,12 +25,14 @@ export default function Loading() {
   useEffect(() => {
     load.setLoading = setLoading;
   }, []);
-  return (
-    loading ? <View style={styles.view}>
+  return loading ? (
+    <View style={styles.view}>
       <View style={styles.inner}>
         <ActivityIndicator color="#fff" size={40} />
         <Text style={styles.text}>加载中</Text>
       </View>
-    </View> : <></>
+    </View>
+  ) : (
+    <></>
   );
 }

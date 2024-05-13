@@ -84,17 +84,21 @@ export default function MType({ setPage }: { setPage: React.Dispatch<React.SetSt
           <Icon name="plus" color="#fff" size={20} />
         </TouchableOpacity>
       </View>
-      {list.map((li, index) => <View key={li.id} style={styles.line}>
-        <TouchableOpacity style={styles.linel} onPress={() => handleList(index)}>
-          <Text>{li.name}</Text>
+      {list.map((li, index) => (
+        <View key={li.id} style={styles.line}>
+          <TouchableOpacity style={styles.linel} onPress={() => handleList(index)}>
+            <Text>{li.name}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.liner} onPress={() => showDel(li.id)}>
+            <Icon name="minuscircleo" />
+          </TouchableOpacity>
+        </View>
+      ))}
+      {__DEV__ && (
+        <TouchableOpacity style={[styles.box, styles.center]} onPress={() => NativeModules.DevSettings.setIsDebuggingRemotely(true)}>
+          <Text>测试</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.liner} onPress={() => showDel(li.id)}>
-          <Icon name="minuscircleo" />
-        </TouchableOpacity>
-      </View>)}
-      {__DEV__ && <TouchableOpacity style={[styles.box, styles.center]} onPress={() => NativeModules.DevSettings.setIsDebuggingRemotely(true)} >
-        <Text>测试</Text>
-      </TouchableOpacity>}
+      )}
       {/* 弹窗 */}
       <Confirm content="确定要删除此分类吗？" visible={delPopup} setVisible={setDelPopup} callback={del} />
       <PopupCenter visible={addPopup} handleClose={() => setAddPopup(false)}>

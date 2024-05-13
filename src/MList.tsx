@@ -82,7 +82,9 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
   const handlePlay = async (i: number) => {
     const children = list[listI].children;
     if (!children?.length) return;
-    children.map(c => { c.play = false });
+    children.map(c => {
+      c.play = false;
+    });
     const c = children[i];
     c.play = true;
     c.played = true;
@@ -92,12 +94,14 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
     } catch {
     } finally {
       const newFile = await RNFetchBlob.fs.stat(c.path.replace('/tree/', '/document/'));
-      await TrackPlayer.add([{
-        id: c.name,
-        url: newFile.path,
-        title: c.name || '',
-        artist: 'artist',
-      }]);
+      await TrackPlayer.add([
+        {
+          id: c.name,
+          url: newFile.path,
+          title: c.name || '',
+          artist: 'artist',
+        },
+      ]);
       await TrackPlayer.play();
       setPlaying(true);
       save(list, setList);
@@ -144,7 +148,9 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
       // 随机
       let noPlay = children.filter(li => !li.played);
       if (noPlay.length === 0) {
-        children.map(c => { c.played = false });
+        children.map(c => {
+          c.played = false;
+        });
         noPlay = children;
       }
       const length = noPlay.length;
@@ -172,8 +178,8 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
     }
   };
 
-  return (
-    listI !== -1 ? <View style={styles.flex1}>
+  return listI !== -1 ? (
+    <View style={styles.flex1}>
       {/* 顶部 */}
       <View style={styles.bar}>
         <TouchableOpacity style={styles.barb} onPress={back}>
@@ -187,14 +193,16 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
       {/* 列表 */}
       <FlatList
         data={list[listI].children || []}
-        renderItem={({ item: li, index }) => <View key={li.name} style={styles.line}>
-          <TouchableOpacity style={styles.linel} onPress={() => handlePlay(index)}>
-            <Text style={li.play ? styles.playing : null} numberOfLines={1}>{li.name}</Text>
-          </TouchableOpacity>
-        </View>}
-        getItemLayout={(data, index) => (
-          { length: 50, offset: 50 * index, index }
+        renderItem={({ item: li, index }) => (
+          <View key={li.name} style={styles.line}>
+            <TouchableOpacity style={styles.linel} onPress={() => handlePlay(index)}>
+              <Text style={li.play ? styles.playing : null} numberOfLines={1}>
+                {li.name}
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
+        getItemLayout={(data, index) => ({ length: 50, offset: 50 * index, index })}
         keyExtractor={item => item.name || ''}
       />
       {/* 底部栏 */}
@@ -218,10 +226,14 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
       </View>
       <PopupCenter visible={showClock} handleClose={() => setShowClock(false)}>
         <Text style={[styles.clock, { fontWeight: 'bold' }]}>自动暂停</Text>
-        {[0.5, 1, 1.5, 2, 3].map(l => <ClockDom key={l} time={l} setShowClock={setShowClock} setPlaying={setPlaying} />)}
+        {[0.5, 1, 1.5, 2, 3].map(l => (
+          <ClockDom key={l} time={l} setShowClock={setShowClock} setPlaying={setPlaying} />
+        ))}
         <View style={styles.clock} />
       </PopupCenter>
-    </View> : <></>
+    </View>
+  ) : (
+    <></>
   );
 }
 
@@ -236,9 +248,11 @@ const ClockDom = ({ time, setShowClock, setPlaying }: any) => {
     }, num);
   };
 
-  return <TouchableOpacity style={styles.clock} onPress={() => handleClock(time)}>
-    <Text style={styles.center}>{time}小时</Text>
-  </TouchableOpacity>
+  return (
+    <TouchableOpacity style={styles.clock} onPress={() => handleClock(time)}>
+      <Text style={styles.center}>{time}小时</Text>
+    </TouchableOpacity>
+  );
 };
 
 /** 标题栏 */
@@ -247,8 +261,12 @@ const TrackProgress = function () {
   const [showTitle, setShowTitle] = useState(false);
 
   function format(seconds: any) {
-    let mins = (Math.trunc(seconds / 60)).toString().padStart(2, '0');
-    let secs = (Math.trunc(seconds % 60)).toString().padStart(2, '0');
+    let mins = Math.trunc(seconds / 60)
+      .toString()
+      .padStart(2, '0');
+    let secs = Math.trunc(seconds % 60)
+      .toString()
+      .padStart(2, '0');
     return `${mins}:${secs}`;
   }
 
@@ -295,7 +313,9 @@ const TrackSlider = function () {
           minimumValue={0}
           step={1}
           value={position}
-          onValueChange={(value) => { TrackPlayer.seekTo(value) }}
+          onValueChange={value => {
+            TrackPlayer.seekTo(value);
+          }}
           thumbTintColor="white"
         />
       </View>

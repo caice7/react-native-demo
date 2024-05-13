@@ -41,20 +41,8 @@ export default function Enter() {
       android: {
         appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback,
       },
-      capabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToNext,
-        Capability.SkipToPrevious,
-        Capability.JumpForward,
-        Capability.JumpBackward,
-      ],
-      compactCapabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToPrevious,
-        Capability.SkipToNext,
-      ],
+      capabilities: [Capability.Play, Capability.Pause, Capability.SkipToNext, Capability.SkipToPrevious, Capability.JumpForward, Capability.JumpBackward],
+      compactCapabilities: [Capability.Play, Capability.Pause, Capability.SkipToPrevious, Capability.SkipToNext],
     });
   };
 
