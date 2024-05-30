@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { FlatList, PermissionsAndroid, Text, TouchableOpacity, View, NativeModules } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { FlatList, Text, TouchableOpacity, View, NativeModules, TextInput, Linking } from 'react-native';
 import styles from '~/global.css';
 import Icon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,7 +15,9 @@ const { MusicModule } = NativeModules;
 type MODE = 'single' | 'sequence' | 'random';
 
 let timmer: NodeJS.Timeout;
+let lastSearch = '';
 export default function MList({ setPage }: { setPage: React.Dispatch<React.SetStateAction<number>> }) {
+  const flatRef = useRef<any>();
   const [list, setList] = useState<LIST>([]);
   const [listI, setListI] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -23,6 +25,9 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
   const [mode, setMode] = useState<MODE>('random');
   const [showClock, setShowClock] = useState(false);
   const [isFirst, setIsFirst] = useState(true);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchName, setSearchName] = useState('');
+  const [noResult, setNoResult] = useState(false);
 
   /** 初始化 */
   const init = async () => {
@@ -53,13 +58,7 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
   const handleAdd = async () => {
     try {
       showLoading();
-      let isMusicFilesReadPermissions = false;
-      isMusicFilesReadPermissions = await PermissionsAndroid.check('android.permission.READ_MEDIA_AUDIO');
-      if (isMusicFilesReadPermissions === false) {
-        const result = await PermissionsAndroid.request('android.permission.READ_MEDIA_AUDIO');
-        isMusicFilesReadPermissions = result === PermissionsAndroid.RESULTS.GRANTED;
-      }
-      if (isMusicFilesReadPermissions) {
+      try {
         const r = await DocumentPicker.pickDirectory();
         const res: MUSIC[] = await MusicModule.readFolder(r?.uri);
         const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
@@ -69,10 +68,10 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
         });
         list[listI].children = sortedData;
         save(list, setList);
-      } else {
-        console.log(isMusicFilesReadPermissions);
+        hideLoading();
+      } catch {
+        Linking.openSettings().catch(() => { });
       }
-      hideLoading();
     } catch (e) {
       hideLoading();
     }
@@ -165,6 +164,44 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
     }
   };
 
+  /** 清除已找歌的标记 */
+  const clearSearch = () => {
+    const children = list[listI].children || [];
+    children.map(c => {
+      c.searched = false;
+    });
+  }
+
+  /** 显示搜索歌曲弹窗 */
+  const popupSearch = () => {
+    clearSearch();
+    setShowSearch(true);
+  }
+
+  /** 搜索歌曲 */
+  const handleSearch = () => {
+    if (lastSearch && lastSearch !== searchName) {
+      // 搜索名不一致时先清
+      clearSearch();
+    }
+    const children = list[listI].children || [];
+    let num = -1;
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].name.toLocaleLowerCase().includes(searchName.toLocaleLowerCase()) && !children[i].searched) {
+        children[i].searched = true;
+        num = i;
+        lastSearch = searchName;
+        break;
+      }
+    }
+    if (num === -1) {
+      setNoResult(true);
+    } else {
+      if (noResult) setNoResult(false);
+      flatRef.current.scrollToOffset({ offset: num * 50, animated: true });
+    }
+  }
+
   /** 改变模式 */
   const handleMode = () => {
     setMode(mode === 'random' ? 'sequence' : mode === 'sequence' ? 'single' : 'random');
@@ -192,6 +229,7 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
       </View>
       {/* 列表 */}
       <FlatList
+        ref={flatRef}
         data={list[listI].children || []}
         renderItem={({ item: li, index }) => (
           <View key={li.name} style={styles.line}>
@@ -210,6 +248,9 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
         <TrackProgress />
         <TrackSlider />
         <View style={styles.btns}>
+          <TouchableOpacity onPress={popupSearch}>
+            <Icon style={styles.bottomb} name="search1" color="#fff" size={20} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleMode}>
             <Icon style={styles.bottomb} name={mode === 'random' ? 'sharealt' : mode === 'single' ? 'sync' : 'indent-right'} color="#fff" size={20} />
           </TouchableOpacity>
@@ -224,6 +265,15 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
           </TouchableOpacity>
         </View>
       </View>
+      <PopupCenter visible={showSearch} handleClose={() => setShowSearch(false)}>
+        <Text style={styles.search}>搜索歌曲 {noResult && "--未找到歌曲"}</Text>
+        <View style={[styles.row, styles.searchBottom]}>
+          <TextInput style={styles.searchInput} onChangeText={setSearchName} value={searchName} />
+          <TouchableOpacity style={styles.center} onPress={handleSearch}>
+            <Icon name="search1" size={20} />
+          </TouchableOpacity>
+        </View>
+      </PopupCenter>
       <PopupCenter visible={showClock} handleClose={() => setShowClock(false)}>
         <Text style={[styles.clock, { fontWeight: 'bold' }]}>自动暂停</Text>
         {[0.5, 1, 1.5, 2, 3].map(l => (

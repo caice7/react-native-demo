@@ -173,3 +173,20 @@
   padding: 10px;
   width: 200px;
 }
+
+.search {
+  padding: 20px 20px 0;
+  font-weight: bold;
+}
+
+.searchInput {
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  height: 30px;
+  width: 200px;
+  padding: 0 10px;
+}
+
+.searchBottom {
+  padding: 10px 15px 20px 20px;
+}

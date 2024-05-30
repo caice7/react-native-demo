@@ -12,6 +12,7 @@ export type MUSIC = {
   play?: boolean;
   played?: boolean;
   index?: number;
+  searched?: boolean;
 };
 
 export type LIST = {
