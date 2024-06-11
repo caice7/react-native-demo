@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View, NativeModules, TextInput, Linking } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View, NativeModules, TextInput, Linking, PermissionsAndroid } from 'react-native';
 import styles from '~/global.css';
 import Icon from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -58,7 +58,13 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
   const handleAdd = async () => {
     try {
       showLoading();
-      try {
+      let isMusicFilesReadPermissions = false;
+      isMusicFilesReadPermissions = await PermissionsAndroid.check('android.permission.READ_MEDIA_AUDIO');
+      if (isMusicFilesReadPermissions === false) {
+        const result = await PermissionsAndroid.request('android.permission.READ_MEDIA_AUDIO');
+        isMusicFilesReadPermissions = result === PermissionsAndroid.RESULTS.GRANTED;
+      }
+      if (isMusicFilesReadPermissions) {
         const r = await DocumentPicker.pickDirectory();
         const res: MUSIC[] = await MusicModule.readFolder(r?.uri);
         const sortedData = res.sort((a, b) => a.name.localeCompare(b.name));
@@ -68,10 +74,10 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
         });
         list[listI].children = sortedData;
         save(list, setList);
-        hideLoading();
-      } catch {
+      } else {
         Linking.openSettings().catch(() => { });
       }
+      hideLoading();
     } catch (e) {
       hideLoading();
     }
@@ -95,9 +101,9 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
       const newFile = await RNFetchBlob.fs.stat(c.path.replace('/tree/', '/document/'));
       await TrackPlayer.add([
         {
-          id: c.name,
+          id: playName,
           url: newFile.path,
-          title: c.name || '',
+          title: playName,
           artist: 'artist',
         },
       ]);
@@ -204,7 +210,9 @@ export default function MList({ setPage }: { setPage: React.Dispatch<React.SetSt
 
   /** 改变模式 */
   const handleMode = () => {
-    setMode(mode === 'random' ? 'sequence' : mode === 'sequence' ? 'single' : 'random');
+    const newMode = mode === 'random' ? 'sequence' : mode === 'sequence' ? 'single' : 'random';
+    AsyncStorage.setItem('mode', newMode);
+    setMode(newMode);
   };
 
   /** 返回 */
@@ -295,7 +303,7 @@ const ClockDom = ({ time, setShowClock, setPlaying }: any) => {
     timmer = setTimeout(() => {
       TrackPlayer.pause();
       setPlaying(false);
-    }, num);
+    }, num * 3600000);
   };
 
   return (
